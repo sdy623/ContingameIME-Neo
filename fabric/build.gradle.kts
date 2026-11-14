@@ -7,6 +7,12 @@ architectury {
     fabric()
 }
 
+val minecraftCompatVersion = rootProject.findProperty("minecraft_compat_version")?.toString()
+    ?: rootProject.property("minecraft_version").toString()
+sourceSets.getByName("main").java.srcDir("src/minecraft/$minecraftCompatVersion/java")
+extensions.configure<org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension> {
+    sourceSets.getByName("main").kotlin.srcDir("src/minecraft/$minecraftCompatVersion/kotlin")
+}
 loom {
     accessWidenerPath.set(project(":common").loom.accessWidenerPath)
 }
@@ -43,7 +49,9 @@ dependencies {
     //REI
     modImplementation("me.shedaniel:RoughlyEnoughItems-fabric:${rootProject.property("rei_version")}")
     //Stain
-    modCompileOnly("io.github.ladysnake:satin:${rootProject.property("satin_version")}")
+    rootProject.findProperty("satin_version")?.toString()?.let { satinVersion ->
+        modCompileOnly("io.github.ladysnake:satin:$satinVersion")
+    }
     //Kotlin
     modImplementation("net.fabricmc:fabric-language-kotlin:${rootProject.property("fabric_language_kotlin_version")}")
     //Cloth Config
@@ -58,9 +66,17 @@ dependencies {
 tasks {
     processResources {
         inputs.property("version", project.version)
+        inputs.property("minecraft_version", rootProject.property("minecraft_version"))
 
         filesMatching("fabric.mod.json") {
-            expand("version" to project.version)
+            expand(
+                "version" to project.version,
+                "minecraft_version" to rootProject.property("minecraft_version")
+            )
+        }
+
+        filesMatching("kitsuneime.fabric.mixins.json") {
+            expand("java_version" to (rootProject.findProperty("java_version") ?: 21))
         }
     }
 

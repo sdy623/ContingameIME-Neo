@@ -8,6 +8,7 @@ import city.sdy623.kitsuneime.client.jni.ExternalBaseIME
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.Renderable
+import city.sdy623.kitsuneime.compat.MinecraftCompat
 
 object OverlayScreen : Renderable {
     private val alphaModeWidget = AlphaModeWidget(Minecraft.getInstance().font)
@@ -168,13 +169,14 @@ object OverlayScreen : Renderable {
      */
     override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {
         if (ExternalBaseIME.State) {
-            val poseStack = guiGraphics.pose()
-            poseStack.pushPose()
-            poseStack.translate(0.0, 0.0, 500.0)
-            compositionWidget.render(guiGraphics, mouseX, mouseY, delta)
-            alphaModeWidget.render(guiGraphics, mouseX, mouseY, delta)
-            candidateListWidget.render(guiGraphics, mouseX, mouseY, delta)
-            poseStack.popPose()
+            MinecraftCompat.pushGuiMatrix(guiGraphics)
+            try {
+                compositionWidget.render(guiGraphics, mouseX, mouseY, delta)
+                alphaModeWidget.render(guiGraphics, mouseX, mouseY, delta)
+                candidateListWidget.render(guiGraphics, mouseX, mouseY, delta)
+            } finally {
+                MinecraftCompat.popGuiMatrix(guiGraphics)
+            }
         }
     }
 

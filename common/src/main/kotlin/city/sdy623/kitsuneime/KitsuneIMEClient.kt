@@ -7,10 +7,9 @@ import city.sdy623.kitsuneime.client.handler.IMEHandler
 import city.sdy623.kitsuneime.client.handler.KeyHandler
 import city.sdy623.kitsuneime.client.handler.ScreenHandler
 import city.sdy623.kitsuneime.client.jni.ExternalBaseIME
+import city.sdy623.kitsuneime.compat.MinecraftCompat
 import dev.architectury.event.EventResult
 import dev.architectury.event.events.client.ClientGuiEvent
-import dev.architectury.event.events.client.ClientScreenInputEvent
-import dev.architectury.platform.Platform
 import net.minecraft.client.Minecraft
 import org.slf4j.LoggerFactory
 
@@ -73,7 +72,7 @@ object KitsuneIMEClient {
     }
 
     fun registerConfigScreen() {
-        Platform.getMod(MODID).registerConfigurationScreen { parent ->
+        MinecraftCompat.registerConfigurationScreen(MODID) { parent ->
             ConfigHandler.createConfigScreen().setParentScreen(parent).build()
         }
     }
@@ -111,12 +110,12 @@ object KitsuneIMEClient {
                 prevY = mouseY
             }
 
-            OverlayScreen.render(matrices, mouseX, mouseY, delta.gameTimeDeltaTicks)
+            OverlayScreen.render(matrices, mouseX, mouseY, MinecraftCompat.renderDelta(delta))
         })
         ClientScreenEventHooks.SCREEN_MOUSE_MOVE.register(ClientScreenEventHooks.MouseMove { _, _, _, _ ->
             IMEHandler.IMEState.onMouseMove()
         })
-        ClientScreenInputEvent.KEY_PRESSED_PRE.register(ClientScreenInputEvent.KeyPressed { _, _, keyCode, scanCode, modifiers ->
+        MinecraftCompat.registerKeyInputEvents(onPressed = { keyCode, scanCode, modifiers ->
             if (!interactionKicked && firstFrameRendered && !ExternalBaseIME.hasAttachedOnce()) {
                 interactionKicked = true
                 kickIme("interaction-key-press")
@@ -125,8 +124,7 @@ object KitsuneIMEClient {
                 EventResult.interruptDefault()
             else
                 EventResult.pass()
-        })
-        ClientScreenInputEvent.KEY_RELEASED_PRE.register(ClientScreenInputEvent.KeyReleased { _, _, keyCode, scanCode, modifiers ->
+        }, onReleased = { keyCode, scanCode, modifiers ->
             if (KeyHandler.KeyState.onKeyUp(keyCode, scanCode, modifiers))
                 EventResult.interruptDefault()
             else

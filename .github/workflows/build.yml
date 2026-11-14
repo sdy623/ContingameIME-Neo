@@ -5,6 +5,48 @@ on: [ pull_request, push, workflow_dispatch ]
 jobs:
   Build:
     runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - minecraft: '1.21'
+            loader: all
+          - minecraft: '1.20'
+            loader: all
+          - minecraft: '1.20.1'
+            loader: all
+          - minecraft: '1.20.2'
+            loader: all
+          - minecraft: '1.20.3'
+            loader: fabric
+          - minecraft: '1.20.4'
+            loader: all
+          - minecraft: '1.20.5'
+            loader: all
+          - minecraft: '1.20.6'
+            loader: all
+          - minecraft: '1.21.1'
+            loader: all
+          - minecraft: '1.21.2'
+            loader: fabric
+          - minecraft: '1.21.3'
+            loader: all
+          - minecraft: '1.21.4'
+            loader: all
+          - minecraft: '1.21.5'
+            loader: all
+          - minecraft: '1.21.6'
+            loader: fabric
+          - minecraft: '1.21.7'
+            loader: fabric
+          - minecraft: '1.21.8'
+            loader: all
+          - minecraft: '1.21.9'
+            loader: fabric
+          - minecraft: '1.21.10'
+            loader: all
+          - minecraft: '1.21.11'
+            loader: all
 
     steps:
       - uses: actions/checkout@v3
@@ -20,20 +62,6 @@ jobs:
             ~/.gradle/caches
             ~/.gradle/wrapper
             .gradle
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', 'build.gradle') }}
+          key: ${{ runner.os }}-${{ matrix.minecraft }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', 'versions/*.properties') }}
       - name: Build with Gradle
-        run: |
-          chmod +x gradlew
-          ./gradlew build
-      - name: Upload artifacts (neoforge)
-        uses: actions/upload-artifact@v6
-        with:
-          name: 1.21.x-neoforge
-          path: ${{ github.workspace }}/neoforge/build/libs
-        
-      - name: Upload artifacts (fabric)
-        uses: actions/upload-artifact@v6
-        with:
-          name: 1.21.x-fabric
-          path: ${{ github.workspace }}/fabric/build/libs
-        
+        run: python3 tools/build_version.py '${{ matrix.minecraft }}' --loader '${{ matrix.loader }}'

@@ -2,7 +2,7 @@ package city.sdy623.kitsuneime.client.handler
 
 import city.sdy623.kitsuneime.KitsuneIMEClient
 import city.sdy623.kitsuneime.client.handler.KeyHandler.CombinationKeyState.Companion.onAction
-import com.mojang.blaze3d.platform.InputConstants
+import city.sdy623.kitsuneime.compat.MinecraftCompat
 import kotlinx.coroutines.*
 import net.minecraft.client.KeyMapping
 import net.minecraft.client.Minecraft
@@ -15,9 +15,9 @@ fun interface ICombinationKeyActionListener {
 }
 
 object KeyHandler {
-    val toggleKey: KeyMapping = KeyMapping(
+    val toggleKey: KeyMapping = MinecraftCompat.createKeyMapping(
         "key.kitsuneime.hotkey",
-        InputConstants.Type.KEYSYM,
+        com.mojang.blaze3d.platform.InputConstants.Type.KEYSYM,
         GLFW.GLFW_KEY_HOME,
         "category.kitsuneime.keybinding"
     )

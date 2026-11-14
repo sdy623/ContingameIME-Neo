@@ -7,14 +7,13 @@ import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
-import net.minecraft.Util
 
 @Environment(EnvType.CLIENT)
 object KitsuneIMEClientFabric : ClientModInitializer {
 
     override fun onInitializeClient() {
         KitsuneIMEClient.registerConfigScreen()
-        if (Util.getPlatform() == Util.OS.WINDOWS) {
+        if (System.getProperty("os.name").startsWith("Windows", ignoreCase = true)) {
             KitsuneIMEClient.LOGGER.info("it is Windows OS! Loading mod...")
 
             ClientLifecycleEvents.CLIENT_STARTED.register(ClientLifecycleEvents.ClientStarted {
@@ -22,6 +21,6 @@ object KitsuneIMEClientFabric : ClientModInitializer {
             })
             KeyBindingHelper.registerKeyBinding(KeyHandler.toggleKey)
         } else
-            KitsuneIMEClient.LOGGER.warn("This mod cant work in ${Util.getPlatform()} !")
+            KitsuneIMEClient.LOGGER.warn("This mod cant work on ${System.getProperty("os.name")}!")
     }
 }

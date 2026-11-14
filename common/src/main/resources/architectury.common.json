@@ -2,6 +2,7 @@
   "accessWidener": "kitsuneime.accesswidener",
   "enabled_platforms": [
     "fabric",
+    "forge",
     "neoforge"
   ]
 }

@@ -2,7 +2,6 @@ package city.sdy623.kitsuneime.neoforge
 
 import city.sdy623.kitsuneime.KitsuneIMEClient
 import city.sdy623.kitsuneime.client.handler.KeyHandler
-import net.minecraft.Util
 import net.neoforged.fml.common.Mod
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent
@@ -14,14 +13,14 @@ object KitsuneIMEClientNeoForge {
     init {
         KitsuneIMEClient.registerConfigScreen()
         
-        if (Util.getPlatform() == Util.OS.WINDOWS) {
+        if (System.getProperty("os.name").startsWith("Windows", ignoreCase = true)) {
             KitsuneIMEClient.LOGGER.info("it is Windows OS! Loading mod...")
             
             val modBus = MOD_CONTEXT.getKEventBus()
             modBus.addListener(::onClientSetup)
             modBus.addListener(::onRegisterKeyMappings)
         } else {
-            KitsuneIMEClient.LOGGER.warn("This mod cant work in ${Util.getPlatform()} !")
+            KitsuneIMEClient.LOGGER.warn("This mod cant work on ${System.getProperty("os.name")}!")
         }
     }
     

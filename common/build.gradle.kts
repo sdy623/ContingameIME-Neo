@@ -2,13 +2,28 @@ plugins {
     `maven-publish`
 }
 
+val minecraftVersion = rootProject.property("minecraft_version").toString()
+val compatibilityVersion = rootProject.findProperty("minecraft_compat_version")?.toString() ?: minecraftVersion
+require(compatibilityVersion in setOf("1.20.1", "1.20.6", "1.21.1", "1.21.6", "1.21.9", "1.21.10", "1.21.11")) {
+    "No Minecraft compatibility sources for $minecraftVersion (API family $compatibilityVersion). " +
+        "Supported API families: 1.20.1, 1.20.6, 1.21.1, 1.21.6, 1.21.9, 1.21.10, 1.21.11."
+}
+
+extensions.configure<org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension> {
+    sourceSets.getByName("main").kotlin.srcDir("src/minecraft/$compatibilityVersion/kotlin")
+}
+
 architectury {
     val enabled_platforms: String by rootProject
     common(enabled_platforms.split(","))
 }
 
 loom {
-    accessWidenerPath.set(file("src/main/resources/kitsuneime.accesswidener"))
+    val versionedAccessWidener = file("src/main/resources/kitsuneime.$compatibilityVersion.accesswidener")
+    accessWidenerPath.set(
+        if (versionedAccessWidener.exists()) versionedAccessWidener
+        else file("src/main/resources/kitsuneime.accesswidener")
+    )
 }
 
 dependencies {

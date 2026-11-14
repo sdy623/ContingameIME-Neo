@@ -1,0 +1,12 @@
+package city.sdy623.kitsuneime.fabric.mixin;
+
+import net.minecraft.client.KeyboardHandler;
+import net.minecraft.client.input.CharacterEvent;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.gen.Invoker;
+
+@Mixin(KeyboardHandler.class)
+public interface MixinKeyboardHandler {
+    @Invoker("charTyped")
+    void invokeCharTyped(long window, CharacterEvent event);
+}

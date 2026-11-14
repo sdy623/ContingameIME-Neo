@@ -7,6 +7,12 @@ architectury {
     neoForge()
 }
 
+val minecraftCompatVersion = rootProject.findProperty("minecraft_compat_version")?.toString()
+    ?: rootProject.property("minecraft_version").toString()
+sourceSets.getByName("main").java.srcDir("src/minecraft/$minecraftCompatVersion/java")
+extensions.configure<org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension> {
+    sourceSets.getByName("main").kotlin.srcDir("src/minecraft/$minecraftCompatVersion/kotlin")
+}
 loom {
     accessWidenerPath.set(project(":common").loom.accessWidenerPath)
 }
@@ -48,10 +54,21 @@ dependencies {
 
 tasks {
     processResources {
-        inputs.property("version", project.version)
+        val metadata = mapOf(
+            "version" to project.version,
+            "minecraft_version" to rootProject.property("minecraft_version"),
+            "neoforge_version" to rootProject.property("neoforge_version"),
+            "architectury_version" to rootProject.property("architectury_version"),
+            "cloth_config_version" to rootProject.property("cloth_config_version")
+        )
+        inputs.properties(metadata)
 
         filesMatching("META-INF/neoforge.mods.toml") {
-            expand("version" to project.version)
+            expand(metadata)
+        }
+
+        filesMatching("kitsuneime.neoforge.mixins.json") {
+            expand("java_version" to (rootProject.findProperty("java_version") ?: 21))
         }
     }
 

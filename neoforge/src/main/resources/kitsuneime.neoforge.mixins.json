@@ -3,7 +3,7 @@
   "plugin": "city.sdy623.kitsuneime.neoforge.mixin.MixinConfigPlugin",
   "minVersion": "0.8",
   "package": "city.sdy623.kitsuneime.neoforge.mixin",
-  "compatibilityLevel": "JAVA_21",
+  "compatibilityLevel": "JAVA_${java_version}",
   "client": [
     "MixinBookEditScreen",
     "MixinChatScreen",

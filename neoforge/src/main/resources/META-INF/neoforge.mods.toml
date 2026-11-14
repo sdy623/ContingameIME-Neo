@@ -24,27 +24,27 @@ config="kitsuneime.neoforge.mixins.json"
 [[dependencies.ingameime]]
 modId="neoforge"
 type="required"
-versionRange="[21,)"
+versionRange="[${neoforge_version},)"
 ordering="NONE"
 side="CLIENT"
 
 [[dependencies.ingameime]]
 modId="minecraft"
 type="required"
-versionRange="[1.21,1.21.4)"
+versionRange="[${minecraft_version}]"
 ordering="NONE"
 side="CLIENT"
 
 [[dependencies.ingameime]]
 modId="architectury"
 type="required"
-versionRange="[13,)"
+versionRange="[${architectury_version},)"
 ordering="AFTER"
 side="CLIENT"
 
 [[dependencies.ingameime]]
 modId="cloth_config"
 type="required"
-versionRange="[15,)"
+versionRange="[${cloth_config_version},)"
 ordering="AFTER"
 side="CLIENT"

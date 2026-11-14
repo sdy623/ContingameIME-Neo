@@ -1,10 +1,9 @@
 package city.sdy623.kitsuneime.client.gui
 
 import city.sdy623.kitsuneime.client.event.ClientScreenEventHooks
+import city.sdy623.kitsuneime.compat.MinecraftCompat
 import net.minecraft.client.gui.Font
 import net.minecraft.client.gui.GuiGraphics
-import org.joml.Vector4f
-import kotlin.math.roundToInt
 
 object CaretPositionHelper {
     @JvmStatic
@@ -14,10 +13,7 @@ object CaretPositionHelper {
 
     @JvmStatic
     fun emitCaretFromGui(edit: Any, guiGraphics: GuiGraphics, localX: Int, localY: Int) {
-        val pose = guiGraphics.pose().last().pose()
-        val vec = Vector4f(localX.toFloat(), localY.toFloat(), 0f, 1f).mul(pose)
-        val x = vec.x.roundToInt()
-        val y = vec.y.roundToInt()
+        val (x, y) = MinecraftCompat.transformGuiPosition(guiGraphics, localX, localY)
         emitCaretFromScreen(edit, x, y)
     }
 

@@ -1,9 +1,9 @@
 plugins {
     java
     id("architectury-plugin") version "3.4.162"
-    id("dev.architectury.loom") version "1.7-SNAPSHOT" apply false
+    id("dev.architectury.loom") version "1.13.467" apply false
     id("me.shedaniel.unified-publishing") version "0.1.+" apply false
-    kotlin("jvm") version "1.9.24" apply false
+    kotlin("jvm") apply false
 }
 
 architectury {
@@ -11,6 +11,9 @@ architectury {
 }
 
 subprojects {
+    val minecraftVersion = rootProject.property("minecraft_version").toString()
+    layout.buildDirectory.set(layout.projectDirectory.dir("build/$minecraftVersion"))
+
     apply(plugin = "dev.architectury.loom")
     apply(plugin = "me.shedaniel.unified-publishing")
 
@@ -25,6 +28,9 @@ subprojects {
 }
 
 allprojects {
+    val javaTargetVersion = rootProject.findProperty("java_version")?.toString()?.toIntOrNull() ?: 21
+    require(javaTargetVersion in 8..21) { "Unsupported Java bytecode target: $javaTargetVersion" }
+
     apply(plugin = "java")
     apply(plugin = "architectury-plugin")
     apply(plugin = "maven-publish")
@@ -58,16 +64,13 @@ allprojects {
 
     tasks.withType<JavaCompile> {
         options.encoding = "UTF-8"
-        options.release.set(21)
+        options.release.set(javaTargetVersion)
     }
 
 
-    val compileKotlin: org.jetbrains.kotlin.gradle.tasks.KotlinCompile by tasks
-    compileKotlin.kotlinOptions {
-        jvmTarget = "21"
-    }
-    val compileTestKotlin: org.jetbrains.kotlin.gradle.tasks.KotlinCompile by tasks
-    compileTestKotlin.kotlinOptions {
-        jvmTarget = "21"
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget(javaTargetVersion.toString()))
+        }
     }
 }

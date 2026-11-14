@@ -1,5 +1,6 @@
 package city.sdy623.kitsuneime.client.gui.widget
 
+import city.sdy623.kitsuneime.compat.MinecraftCompat
 import net.minecraft.client.gui.Font
 import net.minecraft.client.gui.GuiGraphics
 
@@ -36,7 +37,9 @@ class CompositionWidget(font: Font) : Widget(font) {
 
             var offsetX = offsetX + padding.first
             val offsetY = offsetY + padding.second
-            offsetX = guiGraphics.drawString(font, part1, offsetX, offsetY, textColor, false)
+            offsetX = MinecraftCompat.drawStringAndGetEnd(
+                guiGraphics, font, part1, offsetX, offsetY, textColor, false
+            )
             //Caret-blink 0.5s
             if ((System.currentTimeMillis() % 1000) > 500) {
                 guiGraphics.fill(

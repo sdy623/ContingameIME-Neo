@@ -4,8 +4,8 @@ import city.sdy623.kitsuneime.KitsuneIMEClient
 import city.sdy623.kitsuneime.client.KeyboardHelper
 import city.sdy623.kitsuneime.client.handler.IMEHandler
 import city.sdy623.kitsuneime.client.gui.OverlayScreen
+import city.sdy623.kitsuneime.compat.MinecraftCompat
 import net.minecraft.client.Minecraft
-import net.minecraft.resources.ResourceLocation
 import org.apache.logging.log4j.LogManager
 import org.lwjgl.glfw.GLFWNativeWin32.glfwGetWin32Window
 import java.awt.Toolkit
@@ -77,10 +77,9 @@ object ExternalBaseIME {
                 val x86 = if (Minecraft.getInstance().is64Bit) "" else "-x86"
                 val resourceNative = ResourceLocation("kitsuneime", "natives/jni$x86.dll")
             */
-            val resourceNative = ResourceLocation.fromNamespaceAndPath("kitsuneime", "natives/jni.dll")
-            NativeLoader.load(Minecraft.getInstance().resourceManager.getResource(resourceNative).orElseThrow())
+            NativeLoader.load(MinecraftCompat.nativeResource(Minecraft.getInstance().resourceManager))
             val win = Minecraft.getInstance().window
-            val hwnd = glfwGetWin32Window(win.window)
+            val hwnd = glfwGetWin32Window(MinecraftCompat.windowHandle(win))
             val isFullscreen = win.isFullscreen
             LOGGER.debug("Initializing native IME: hwnd=0x%X fullscreen=%s", hwnd, isFullscreen)
             nInitialize(hwnd)
@@ -135,7 +134,12 @@ object ExternalBaseIME {
                 OverlayScreen.composition = null
                 iCommitListener.onCommit(str!!).onEach { ch ->
                     val handler = Minecraft.getInstance().keyboardHandler
-                    KeyboardHelper.sendCharTyped(handler, Minecraft.getInstance().window.window, ch.code, 0)
+                    KeyboardHelper.sendCharTyped(
+                        handler,
+                        MinecraftCompat.windowHandle(Minecraft.getInstance().window),
+                        ch.code,
+                        0
+                    )
                 }
             }
             CompositionState.Start,
