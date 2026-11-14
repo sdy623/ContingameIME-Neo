@@ -116,8 +116,3 @@ jobs:
           draft: false
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish Modrinth versions
-        env:
-          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
-        run: python3 tools/publish_modrinth_release.py dist "$GITHUB_REF_NAME"

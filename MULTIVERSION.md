@@ -47,7 +47,7 @@ Windows 可将 `python3` 替换为 `python`。构建参数来自 `versions/*.pro
 
 `common/src/minecraft/<兼容族>/kotlin` 保存按 Minecraft API 区分的公共适配实现。当前适配族为 1.20.1、1.20.6、1.21.1、1.21.6、1.21.9、1.21.10、1.21.11。Forge 模块对复用 NeoForge 移植的源文件采用 Forge 包名和 Forge 事件入口；1.20.3 没有匹配的 REI Forge 发布版，因此该目标在构建时跳过可选 REI 混入。Forge 目标需安装 MixinExtras 0.4.1；依赖已写入 Forge 模组元数据。
 
-Fabric 与 NeoForge 元数据声明精确的 Minecraft 版本。CI 对当前已配置的 1.20 与 1.21 目标逐项构建；未完成适配的旧版本不会作为成功目标列入矩阵。推送 `v*` 标签时，CI 会汇总并检查全部发行 JAR，发布 GitHub Release，再读取 GitHub Actions secret `MODRINTH_TOKEN` 创建 Modrinth 版本。
+Fabric 与 NeoForge 元数据声明精确的 Minecraft 版本。CI 对当前已配置的 1.20 与 1.21 目标逐项构建；未完成适配的旧版本不会作为成功目标列入矩阵。推送 `v*` 标签时，CI 会汇总并检查全部发行 JAR，发布 GitHub Release。Modrinth 上传需将 `MODRINTH_TOKEN` 绑定为仅发往 `api.modrinth.com` 的 Cloud secret；下载已发布 JAR 后运行 `python3 tools/publish_modrinth_release.py <目录> <tag>`。脚本会按 SHA-512 跳过已正确发布的版本，并拒绝覆盖文件不匹配的版本。
 
 ## 尚待完成
 
