@@ -2,6 +2,9 @@ name: Build
 
 on: [ pull_request, push, workflow_dispatch ]
 
+permissions:
+  contents: read
+
 jobs:
   Build:
     runs-on: ubuntu-22.04
@@ -65,3 +68,56 @@ jobs:
           key: ${{ runner.os }}-${{ matrix.minecraft }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', 'versions/*.properties') }}
       - name: Build with Gradle
         run: python3 tools/build_version.py '${{ matrix.minecraft }}' --loader '${{ matrix.loader }}'
+
+      - name: Package release JARs
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: python3 tools/package_release_artifacts.py '${{ matrix.minecraft }}' "$GITHUB_REF_NAME" dist
+
+      - name: Upload build artifacts
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.minecraft }}
+          path: dist/*.jar
+          if-no-files-found: error
+          retention-days: 7
+
+  Release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: Build
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          path: dist
+          merge-multiple: true
+
+      - name: Verify release matrix
+        run: python3 tools/package_release_artifacts.py --verify-all dist "$GITHUB_REF_NAME"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ContingameIME-Neo ${{ github.ref_name }}
+          body: |
+            Multi-loader release from the current 1.20–1.21 compatibility work.
+
+            This release contains 34 build-verified production JARs: 19 Fabric, 4 Forge, and 11 NeoForge targets. Each filename identifies its Minecraft version and loader. See `MULTIVERSION.md` for the full matrix and remaining compatibility gaps.
+
+            Minecraft 1.18.2, 1.16.5, and 1.12.2 are not included in this release.
+          files: dist/*.jar
+          draft: false
+          prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish Modrinth versions
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+        run: python3 tools/publish_modrinth_release.py dist "$GITHUB_REF_NAME"
